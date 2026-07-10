@@ -1,18 +1,27 @@
 -- ============================================
--- Airi Chat System (DrunUniversalP2P)
+-- AIRI CHAT SYSTEM (Для экзекьютера)
 -- Автор: Drun
--- Описание: Система закрытого чата с облачками над головой
+-- Версия: 2.0 (FIXED)
 -- ============================================
 
+-- БЕЗОПАСНОЕ ПОЛУЧЕНИЕ СЛУЖБ
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local CoreGui = game:GetService("CoreGui")
 local UserInputService = game:GetService("UserInputService")
-local Chat = game:GetService("Chat")
+local RunService = game:GetService("RunService")
+
+-- ВЫБОР ПАПКИ ДЛЯ GUI (CoreGui часто недоступен)
+local GUI_PARENT = LocalPlayer:FindFirstChild("PlayerGui")
+if not GUI_PARENT then
+    GUI_PARENT = game:GetService("CoreGui")
+end
+if not GUI_PARENT then
+    GUI_PARENT = game:GetService("StarterGui")
+end
 
 -- ============================================
--- НАСТРОЙКИ ПО УМОЛЧАНИЮ
+-- НАСТРОЙКИ
 -- ============================================
 _G.DrunBubbleColor = Color3.fromRGB(255, 255, 255)
 _G.DrunBubbleSize = 24
@@ -30,26 +39,31 @@ local fontIndex = 1
 -- ОЧИСТКА СТАРЫХ ДАННЫХ
 -- ============================================
 if _G.DrunChatConnection then
-    _G.DrunChatConnection:Disconnect()
+    pcall(function() _G.DrunChatConnection:Disconnect() end)
     _G.DrunChatConnection = nil
 end
-
 if _G.DrunInputConnection then
-    _G.DrunInputConnection:Disconnect()
+    pcall(function() _G.DrunInputConnection:Disconnect() end)
     _G.DrunInputConnection = nil
 end
 
-if CoreGui:FindFirstChild("DrunUniversalP2P") then
-    CoreGui.DrunUniversalP2P:Destroy()
-end
+-- Удаление старого GUI
+pcall(function()
+    if GUI_PARENT:FindFirstChild("DrunUniversalP2P") then
+        GUI_PARENT.DrunUniversalP2P:Destroy()
+    end
+end)
 
 -- ============================================
--- СОЗДАНИЕ ГЛАВНОГО GUI
+-- СОЗДАНИЕ GUI (БЕЗ CoreGui)
 -- ============================================
-local SG = Instance.new("ScreenGui", CoreGui)
+local SG = Instance.new("ScreenGui")
 SG.Name = "DrunUniversalP2P"
+SG.Parent = GUI_PARENT
 
--- Главное окно чата
+-- ============================================
+-- ГЛАВНОЕ ОКНО
+-- ============================================
 local MainFrame = Instance.new("Frame", SG)
 MainFrame.Size = UDim2.new(0, 320, 0, 165)
 MainFrame.Position = UDim2.new(0.015, 0, 0.12, 0)
@@ -57,8 +71,10 @@ MainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 20)
 MainFrame.BackgroundTransparency = 0.35
 MainFrame.BorderSizePixel = 0
 Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0, 8)
+MainFrame.Active = true
+MainFrame.Draggable = true -- ВОЗМОЖНОСТЬ ПЕРЕТАСКИВАТЬ
 
--- Окно прокрутки для сообщений
+-- Чат окно
 local ChatFrame = Instance.new("ScrollingFrame", MainFrame)
 ChatFrame.Size = UDim2.new(1, -10, 1, -35)
 ChatFrame.Position = UDim2.new(0, 5, 0, 5)
@@ -67,12 +83,11 @@ ChatFrame.BorderSizePixel = 0
 ChatFrame.ScrollBarThickness = 3
 ChatFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
 
--- UIListLayout для автоматического расположения сообщений
 local UIList = Instance.new("UIListLayout", ChatFrame)
 UIList.SortOrder = Enum.SortOrder.LayoutOrder
 UIList.Padding = UDim.new(0, 4)
 
--- Кнопка "ПИСАТЬ"
+-- Кнопки
 local OpenInputBtn = Instance.new("TextButton", MainFrame)
 OpenInputBtn.Size = UDim2.new(0, 75, 0, 22)
 OpenInputBtn.Position = UDim2.new(0, 5, 1, -27)
@@ -83,7 +98,6 @@ OpenInputBtn.TextSize = 11
 OpenInputBtn.Font = Enum.Font.SourceSansBold
 Instance.new("UICorner", OpenInputBtn).CornerRadius = UDim.new(0, 4)
 
--- Кнопка настроек
 local SettingsBtn = Instance.new("TextButton", MainFrame)
 SettingsBtn.Size = UDim2.new(0, 45, 0, 22)
 SettingsBtn.Position = UDim2.new(0, 85, 1, -27)
@@ -93,7 +107,6 @@ SettingsBtn.Text = "⚙️"
 SettingsBtn.TextSize = 12
 Instance.new("UICorner", SettingsBtn).CornerRadius = UDim.new(0, 4)
 
--- Кнопка очистки
 local CloseBtn = Instance.new("TextButton", MainFrame)
 CloseBtn.Size = UDim2.new(0, 110, 0, 22)
 CloseBtn.Position = UDim2.new(1, -115, 1, -27)
@@ -105,7 +118,7 @@ CloseBtn.Font = Enum.Font.SourceSansBold
 Instance.new("UICorner", CloseBtn).CornerRadius = UDim.new(0, 4)
 
 -- ============================================
--- ОКНО НАСТРОЕК
+-- НАСТРОЙКИ
 -- ============================================
 local SettingsFrame = Instance.new("Frame", SG)
 SettingsFrame.Size = UDim2.new(0, 220, 0, 130)
@@ -114,6 +127,8 @@ SettingsFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 30)
 SettingsFrame.BackgroundTransparency = 0.2
 SettingsFrame.Visible = false
 Instance.new("UICorner", SettingsFrame).CornerRadius = UDim.new(0, 8)
+SettingsFrame.Active = true
+SettingsFrame.Draggable = true
 
 local ST = Instance.new("TextLabel", SettingsFrame)
 ST.Size = UDim2.new(1, 0, 0, 25)
@@ -123,18 +138,16 @@ ST.TextSize = 11
 ST.Font = Enum.Font.SourceSansBold
 ST.BackgroundTransparency = 1
 
--- Поле ввода RGB
 local RGBInp = Instance.new("TextBox", SettingsFrame)
 RGBInp.Size = UDim2.new(1, -20, 0, 22)
 RGBInp.Position = UDim2.new(0, 10, 0, 28)
 RGBInp.BackgroundColor3 = Color3.fromRGB(40, 40, 45)
 RGBInp.TextColor3 = Color3.fromRGB(255, 255, 255)
-RGBInp.PlaceholderText = "Цвет RGB (пример: 255,0,0)"
+RGBInp.PlaceholderText = "Цвет: 255,0,0"
 RGBInp.Text = ""
 RGBInp.TextSize = 11
 Instance.new("UICorner", RGBInp).CornerRadius = UDim.new(0, 4)
 
--- Кнопка смены шрифта
 local FontBtn = Instance.new("TextButton", SettingsFrame)
 FontBtn.Size = UDim2.new(1, -20, 0, 22)
 FontBtn.Position = UDim2.new(0, 10, 0, 58)
@@ -145,19 +158,18 @@ FontBtn.TextSize = 11
 FontBtn.Font = Enum.Font.SourceSansBold
 Instance.new("UICorner", FontBtn).CornerRadius = UDim.new(0, 4)
 
--- Кнопка изменения размера шрифта
 local SizeBtn = Instance.new("TextButton", SettingsFrame)
 SizeBtn.Size = UDim2.new(1, -20, 0, 22)
 SizeBtn.Position = UDim2.new(0, 10, 0, 88)
 SizeBtn.BackgroundColor3 = Color3.fromRGB(45, 45, 50)
 SizeBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-SizeBtn.Text = "РАЗМЕР ШРИФТА: " .. _G.DrunBubbleSize
+SizeBtn.Text = "РАЗМЕР: " .. _G.DrunBubbleSize
 SizeBtn.TextSize = 11
 SizeBtn.Font = Enum.Font.SourceSansBold
 Instance.new("UICorner", SizeBtn).CornerRadius = UDim.new(0, 4)
 
 -- ============================================
--- ОБРАБОТЧИКИ НАСТРОЕК
+-- ОБРАБОТЧИКИ
 -- ============================================
 SettingsBtn.MouseButton1Click:Connect(function()
     SettingsFrame.Visible = not SettingsFrame.Visible
@@ -187,11 +199,11 @@ SizeBtn.MouseButton1Click:Connect(function()
     else
         _G.DrunBubbleSize = 24
     end
-    SizeBtn.Text = "РАЗМЕР ШРИФТА: " .. _G.DrunBubbleSize
+    SizeBtn.Text = "РАЗМЕР: " .. _G.DrunBubbleSize
 end)
 
 -- ============================================
--- СОЗДАНИЕ ОБЛАЧКА НАД ГОЛОВОЙ
+-- ФУНКЦИЯ ОБЛАЧКА
 -- ============================================
 local function createTreeBubble(player, message)
     if player and player.Character and player.Character:FindFirstChild("Head") then
@@ -228,7 +240,7 @@ local function createTreeBubble(player, message)
 end
 
 -- ============================================
--- ДОБАВЛЕНИЕ СООБЩЕНИЯ В ЛОГ ЧАТА
+-- ЛОГ СООБЩЕНИЙ
 -- ============================================
 local function addMessageToLog(senderName, text)
     local msgLabel = Instance.new("TextLabel", ChatFrame)
@@ -254,36 +266,50 @@ local function addMessageToLog(senderName, text)
 end
 
 -- ============================================
--- ПОИСК СЕТЕВОГО СОБЫТИЯ ЧАТА
+-- ПОИСК СОБЫТИЙ (ДЛЯ ЭКЗЕКЬЮТЕРА)
 -- ============================================
 local networkEvent = nil
 
-local chatEvents = ReplicatedStorage:WaitForChild("DefaultChatSystemChatEvents", 2)
-if chatEvents then
-    networkEvent = chatEvents:WaitForChild("SayMessageRequest", 2)
-end
-
-if not networkEvent then
-    for _, obj in ipairs(ReplicatedStorage:GetDescendants()) do
-        if obj:IsA("RemoteEvent") and (
-            obj.Name:lower():find("chat") or 
-            obj.Name:lower():find("message")
-        ) then
+-- Ищем события в ReplicatedStorage
+for _, obj in ipairs(ReplicatedStorage:GetDescendants()) do
+    if obj:IsA("RemoteEvent") then
+        local name = obj.Name:lower()
+        if name:find("chat") or name:find("message") or name:find("say") or name:find("talk") then
             networkEvent = obj
             break
         end
     end
 end
 
+-- Ищем в Workspace (редко, но бывает)
 if not networkEvent then
-    networkEvent = ReplicatedStorage:FindFirstChildOfClass("RemoteEvent")
+    for _, obj in ipairs(workspace:GetDescendants()) do
+        if obj:IsA("RemoteEvent") and obj.Name:lower():find("chat") then
+            networkEvent = obj
+            break
+        end
+    end
+end
+
+-- Ищем в Players
+if not networkEvent then
+    for _, obj in ipairs(Players:GetDescendants()) do
+        if obj:IsA("RemoteEvent") and obj.Name:lower():find("chat") then
+            networkEvent = obj
+            break
+        end
+    end
 end
 
 -- ============================================
--- ПЕРЕХВАТ СООБЩЕНИЙ ИЗ ЧАТА
+-- ПЕРЕХВАТ СООБЩЕНИЙ
 -- ============================================
-if networkEvent and networkEvent:IsA("RemoteEvent") then
-    _G.DrunChatConnection = networkEvent.OnClientEvent:Connect(function(sender, msg, channel)
+if networkEvent then
+    _G.DrunChatConnection = networkEvent.OnClientEvent:Connect(function(...)
+        local args = {...}
+        local sender = args[1]
+        local msg = args[2]
+        
         if type(msg) == "string" and msg:sub(1, 8) == "##uP2P##" then
             local cleanMessage = msg:sub(9)
             local senderObj = Players:FindFirstChild(sender)
@@ -294,15 +320,19 @@ if networkEvent and networkEvent:IsA("RemoteEvent") then
             end
         end
     end)
+    print("✅ Найдено событие чата:", networkEvent.Name)
+else
+    print("⚠️ Событие чата не найдено. Работаем в оффлайн режиме")
 end
 
 -- ============================================
--- ОТКРЫТИЕ ПОЛЯ ВВОДА СООБЩЕНИЯ
+-- ОТКРЫТИЕ ВВОДА
 -- ============================================
 local function openInputBox()
-    local inputGui = Instance.new("ScreenGui", CoreGui)
-    local box = Instance.new("TextBox", inputGui)
+    local inputGui = Instance.new("ScreenGui")
+    inputGui.Parent = GUI_PARENT
     
+    local box = Instance.new("TextBox", inputGui)
     box.Size = UDim2.new(0, 320, 0, 32)
     box.Position = UDim2.new(0.015, 0, 0.38, 0)
     box.BackgroundColor3 = Color3.fromRGB(30, 30, 35)
@@ -310,18 +340,19 @@ local function openInputBox()
     box.TextColor3 = Color3.fromRGB(255, 255, 255)
     box.PlaceholderText = " Пиши в закрытый чат..."
     box.TextSize = 14
+    box.ClearTextOnFocus = false
     Instance.new("UICorner", box).CornerRadius = UDim.new(0, 4)
     
     box.FocusLost:Connect(function(enterPressed)
         if enterPressed and box.Text ~= "" then
             local txt = box.Text
             
-            -- Обработка команд эмодзи
+            -- Команды
             if txt:sub(1, 2) == "/e" or txt:sub(1, 7) == "/emotes" then
                 pcall(function()
                     game:GetService("Players").LocalPlayer.Chatted:Fire(txt)
                 end)
-                addMessageToLog("Система", "Запущена анимация: " .. txt)
+                addMessageToLog("Система", "🎭 Анимация: " .. txt)
             else
                 local finalMsg = "##uP2P##" .. txt
                 
@@ -353,26 +384,33 @@ _G.DrunInputConnection = UserInputService.InputBegan:Connect(function(input, gam
 end)
 
 -- ============================================
--- ОЧИСТКА/ЗАКРЫТИЕ СКРИПТА
+-- ЗАКРЫТИЕ
 -- ============================================
 CloseBtn.MouseButton1Click:Connect(function()
     if _G.DrunChatConnection then
         _G.DrunChatConnection:Disconnect()
         _G.DrunChatConnection = nil
     end
-    
     if _G.DrunInputConnection then
         _G.DrunInputConnection:Disconnect()
         _G.DrunInputConnection = nil
     end
-    
-    if CoreGui:FindFirstChild("DrunUniversalP2P") then
-        CoreGui.DrunUniversalP2P:Destroy()
+    if SG and SG.Parent then
+        SG:Destroy()
     end
 end)
 
 -- ============================================
--- СТАРТОВЫЕ СООБЩЕНИЯ
+-- ЗАПУСК
 -- ============================================
-addMessageToLog("Система", "Airi Chat System успешно запущен!")
-addMessageToLog("Система", "Нажми K или кнопку 'ПИСАТЬ'. Нажми ⚙️ для кастомизации.")
+addMessageToLog("Система", "🚀 Airi Chat запущен!")
+addMessageToLog("Система", "📌 Нажми K или кнопку 'ПИСАТЬ'")
+addMessageToLog("Система", "⚙️ Нажми ⚙️ для настроек")
+
+if networkEvent then
+    addMessageToLog("Система", "✅ Событие найдено: " .. networkEvent.Name)
+else
+    addMessageToLog("Система", "⚠️ Событие не найдено (чат локальный)")
+end
+
+print("✅ Скрипт загружен!")
