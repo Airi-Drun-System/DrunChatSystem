@@ -1,7 +1,7 @@
 -- ============================================================
 -- 🕷️ AIRI DARK CHAT ULTIMATE
 -- Тёмный подземный чат для избранных
--- Версия: 8.5 (СТАБИЛЬНАЯ)
+-- Версия: 8.6 (Левый верхний угол)
 -- ============================================================
 
 local Players = game:GetService("Players")
@@ -45,36 +45,34 @@ local function UnloadScript()
 end
 
 -- ═══════════════════════════════════════════════════════════════
--- КНОПКА-ТРИГГЕР 💬 (ЧЁРНАЯ, ФИКСИРОВАННАЯ)
+-- КНОПКА-ТРИГГЕР 💬 (ЛЕВЫЙ ВЕРХНИЙ УГОЛ)
 -- ═══════════════════════════════════════════════════════════════
 local ToggleBtn = Instance.new("TextButton")
-ToggleBtn.Size = UDim2.new(0, 70, 0, 70)
-ToggleBtn.Position = UDim2.new(1, -85, 1, -85)
+ToggleBtn.Size = UDim2.new(0, 60, 0, 60)
+ToggleBtn.Position = UDim2.new(0, 10, 0, 10)
 ToggleBtn.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
 ToggleBtn.BackgroundTransparency = 0
 ToggleBtn.Text = "💬"
-ToggleBtn.TextColor3 = Color3.fromRGB(200, 200, 200)
-ToggleBtn.TextSize = 30
+ToggleBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+ToggleBtn.TextSize = 28
 ToggleBtn.Font = Enum.Font.SourceSansBold
 ToggleBtn.BorderSizePixel = 2
-ToggleBtn.BorderColor3 = Color3.fromRGB(80, 80, 90)
+ToggleBtn.BorderColor3 = Color3.fromRGB(100, 100, 120)
 ToggleBtn.Parent = ScreenGui
 ToggleBtn.ZIndex = 999
 Instance.new("UICorner", ToggleBtn).CornerRadius = UDim.new(1, 0)
 
 -- ЭФФЕКТЫ ПРИ НАВЕДЕНИИ
 ToggleBtn.MouseEnter:Connect(function()
-    ToggleBtn.BackgroundTransparency = 0.3
-    ToggleBtn.BorderColor3 = Color3.fromRGB(150, 120, 200)
-    ToggleBtn.TextColor3 = Color3.fromRGB(220, 200, 255)
+    ToggleBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
+    ToggleBtn.BorderColor3 = Color3.fromRGB(180, 150, 220)
 end)
 ToggleBtn.MouseLeave:Connect(function()
-    ToggleBtn.BackgroundTransparency = 0
-    ToggleBtn.BorderColor3 = Color3.fromRGB(80, 80, 90)
-    ToggleBtn.TextColor3 = Color3.fromRGB(200, 200, 200)
+    ToggleBtn.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+    ToggleBtn.BorderColor3 = Color3.fromRGB(100, 100, 120)
 end)
 
--- ОТКРЫТИЕ/ЗАКРЫТИЕ
+-- ОТКРЫТИЕ/ЗАКРЫТИЕ (ГЛАВНЫЙ ФИКС)
 ToggleBtn.MouseButton1Click:Connect(function()
     isOpen = not isOpen
     Main.Visible = isOpen
@@ -369,11 +367,11 @@ end)
 -- СТАРТ
 -- ═══════════════════════════════════════════════════════════════
 AddMsg("🕷️ СИСТЕМА", "Тёмный чат активирован", Color3.fromRGB(150, 120, 200))
-AddMsg("🕷️ СИСТЕМА", "Нажми 💬 в правом нижнем углу", Color3.fromRGB(150, 120, 200))
+AddMsg("🕷️ СИСТЕМА", "Нажми 💬 в левом верхнем углу", Color3.fromRGB(150, 120, 200))
 
 print("═══════════════════════════════════════════════════════════")
-print("🕷️ ТЁМНЫЙ ЧАТ ЗАГРУЖЕН (v8.5)")
-print("📌 Кнопка 💬 чёрная, фиксированная (не двигается)")
+print("🕷️ ТЁМНЫЙ ЧАТ ЗАГРУЖЕН (v8.6)")
+print("📌 Кнопка 💬 в левом верхнем углу")
 print("📌 Кнопки: 🔃 (выгрузка) ❌ (закрыть)")
 print("📌 Отправка: 📩 или Enter")
 print("═══════════════════════════════════════════════════════════")
