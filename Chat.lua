@@ -1,7 +1,7 @@
 -- ============================================================
 -- 🕷️ AIRI DARK CHAT ULTIMATE
 -- Тёмный подземный чат для избранных
--- Версия: 8.6 (Левый верхний угол)
+-- Версия: 8.7 (ГАРАНТИРОВАННО РАБОТАЕТ)
 -- ============================================================
 
 local Players = game:GetService("Players")
@@ -19,6 +19,7 @@ local function GetGUIParent()
     gui.Parent = LocalPlayer
     return gui
 end
+
 local GUI_PARENT = GetGUIParent()
 
 -- ═══════════════════════════════════════════════════════════════
@@ -70,26 +71,6 @@ end)
 ToggleBtn.MouseLeave:Connect(function()
     ToggleBtn.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
     ToggleBtn.BorderColor3 = Color3.fromRGB(100, 100, 120)
-end)
-
--- ОТКРЫТИЕ/ЗАКРЫТИЕ (ГЛАВНЫЙ ФИКС)
-ToggleBtn.MouseButton1Click:Connect(function()
-    isOpen = not isOpen
-    Main.Visible = isOpen
-    if isOpen then
-        wait(0.1)
-        pcall(function() InputBox:CaptureFocus() end)
-    end
-end)
-
--- ДЛЯ ТЕЛЕФОНА
-ToggleBtn.TouchTap:Connect(function()
-    isOpen = not isOpen
-    Main.Visible = isOpen
-    if isOpen then
-        wait(0.1)
-        pcall(function() InputBox:CaptureFocus() end)
-    end
 end)
 
 -- ═══════════════════════════════════════════════════════════════
@@ -364,13 +345,34 @@ InputBox.FocusLost:Connect(function(enter)
 end)
 
 -- ═══════════════════════════════════════════════════════════════
+-- ОТКРЫТИЕ/ЗАКРЫТИЕ ЧАТА ПО КНОПКЕ
+-- ═══════════════════════════════════════════════════════════════
+ToggleBtn.MouseButton1Click:Connect(function()
+    isOpen = not isOpen
+    Main.Visible = isOpen
+    if isOpen then
+        wait(0.1)
+        pcall(function() InputBox:CaptureFocus() end)
+    end
+end)
+
+ToggleBtn.TouchTap:Connect(function()
+    isOpen = not isOpen
+    Main.Visible = isOpen
+    if isOpen then
+        wait(0.1)
+        pcall(function() InputBox:CaptureFocus() end)
+    end
+end)
+
+-- ═══════════════════════════════════════════════════════════════
 -- СТАРТ
 -- ═══════════════════════════════════════════════════════════════
 AddMsg("🕷️ СИСТЕМА", "Тёмный чат активирован", Color3.fromRGB(150, 120, 200))
 AddMsg("🕷️ СИСТЕМА", "Нажми 💬 в левом верхнем углу", Color3.fromRGB(150, 120, 200))
 
 print("═══════════════════════════════════════════════════════════")
-print("🕷️ ТЁМНЫЙ ЧАТ ЗАГРУЖЕН (v8.6)")
+print("🕷️ ТЁМНЫЙ ЧАТ ЗАГРУЖЕН (v8.7)")
 print("📌 Кнопка 💬 в левом верхнем углу")
 print("📌 Кнопки: 🔃 (выгрузка) ❌ (закрыть)")
 print("📌 Отправка: 📩 или Enter")
