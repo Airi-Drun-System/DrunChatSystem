@@ -1,7 +1,7 @@
 -- ============================================================
 -- 🕷️ AIRI DARK CHAT ULTIMATE
 -- Тёмный подземный чат для избранных
--- Версия: 9.0 (ФИКС ПОЛЯ ВВОДА И БОЛЬШИХ СООБЩЕНИЙ)
+-- Версия: 9.1 (ФИНАЛЬНАЯ)
 -- ============================================================
 
 local Players = game:GetService("Players")
@@ -45,35 +45,44 @@ local function UnloadScript()
 end
 
 -- ═══════════════════════════════════════════════════════════════
--- КНОПКА-ТРИГГЕР 💬 (ЛЕВЫЙ ВЕРХНИЙ УГОЛ)
+-- КНОПКА-ТРИГГЕР 💬 (СТИЛЬ ROBLOX)
 -- ═══════════════════════════════════════════════════════════════
 local ToggleBtn = Instance.new("TextButton")
 ToggleBtn.Size = UDim2.new(0, 60, 0, 60)
 ToggleBtn.Position = UDim2.new(0, 10, 0, 10)
-ToggleBtn.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+ToggleBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 35)
 ToggleBtn.BackgroundTransparency = 0
 ToggleBtn.Text = "💬"
 ToggleBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
 ToggleBtn.TextSize = 28
 ToggleBtn.Font = Enum.Font.SourceSansBold
-ToggleBtn.BorderSizePixel = 2
-ToggleBtn.BorderColor3 = Color3.fromRGB(100, 100, 120)
+ToggleBtn.BorderSizePixel = 1
+ToggleBtn.BorderColor3 = Color3.fromRGB(80, 80, 90)
 ToggleBtn.Parent = ScreenGui
 ToggleBtn.ZIndex = 999
-Instance.new("UICorner", ToggleBtn).CornerRadius = UDim.new(1, 0)
+Instance.new("UICorner", ToggleBtn).CornerRadius = UDim.new(0, 8)
 
--- ЭФФЕКТЫ ПРИ НАВЕДЕНИИ
+local Shadow = Instance.new("Frame")
+Shadow.Size = UDim2.new(1, 0, 1, 0)
+Shadow.Position = UDim2.new(0, 0, 0, 4)
+Shadow.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+Shadow.BackgroundTransparency = 0.5
+Shadow.BorderSizePixel = 0
+Shadow.ZIndex = 0
+Shadow.Parent = ToggleBtn
+Instance.new("UICorner", Shadow).CornerRadius = UDim.new(0, 8)
+
 ToggleBtn.MouseEnter:Connect(function()
-    ToggleBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
-    ToggleBtn.BorderColor3 = Color3.fromRGB(180, 150, 220)
+    ToggleBtn.BackgroundColor3 = Color3.fromRGB(50, 50, 55)
+    ToggleBtn.BorderColor3 = Color3.fromRGB(120, 120, 140)
 end)
 ToggleBtn.MouseLeave:Connect(function()
-    ToggleBtn.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-    ToggleBtn.BorderColor3 = Color3.fromRGB(100, 100, 120)
+    ToggleBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 35)
+    ToggleBtn.BorderColor3 = Color3.fromRGB(80, 80, 90)
 end)
 
 -- ═══════════════════════════════════════════════════════════════
--- ГЛАВНОЕ ОКНО (УВЕЛИЧЕННОЕ)
+-- ГЛАВНОЕ ОКНО
 -- ═══════════════════════════════════════════════════════════════
 local Main = Instance.new("Frame")
 Main.Size = UDim2.new(0, 550, 0, 450)
@@ -89,18 +98,18 @@ Main.Draggable = true
 Instance.new("UICorner", Main).CornerRadius = UDim.new(0, 14)
 
 -- ТЕНЬ
-local Shadow = Instance.new("Frame")
-Shadow.Size = UDim2.new(1, 10, 1, 10)
-Shadow.Position = UDim2.new(0, -5, 0, -5)
-Shadow.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-Shadow.BackgroundTransparency = 0.7
-Shadow.BorderSizePixel = 0
-Shadow.ZIndex = 0
-Shadow.Parent = Main
-Instance.new("UICorner", Shadow).CornerRadius = UDim.new(0, 14)
+local ShadowMain = Instance.new("Frame")
+ShadowMain.Size = UDim2.new(1, 10, 1, 10)
+ShadowMain.Position = UDim2.new(0, -5, 0, -5)
+ShadowMain.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+ShadowMain.BackgroundTransparency = 0.7
+ShadowMain.BorderSizePixel = 0
+ShadowMain.ZIndex = 0
+ShadowMain.Parent = Main
+Instance.new("UICorner", ShadowMain).CornerRadius = UDim.new(0, 14)
 
 -- ═══════════════════════════════════════════════════════════════
--- ЗАГОЛОВОК
+-- ЗАГОЛОВОК (С КНОПКАМИ 🔃 И ❌)
 -- ═══════════════════════════════════════════════════════════════
 local TitleBar = Instance.new("Frame")
 TitleBar.Size = UDim2.new(1, 0, 0, 42)
@@ -111,7 +120,7 @@ TitleBar.Parent = Main
 Instance.new("UICorner", TitleBar).CornerRadius = UDim.new(0, 14)
 
 local TitleText = Instance.new("TextLabel")
-TitleText.Size = UDim2.new(1, -100, 1, 0)
+TitleText.Size = UDim2.new(1, -120, 1, 0)
 TitleText.Position = UDim2.new(0, 16, 0, 0)
 TitleText.BackgroundTransparency = 1
 TitleText.Text = "🕷️ ТЁМНЫЙ ЧАТ"
@@ -131,36 +140,53 @@ StatusDot.BorderSizePixel = 0
 StatusDot.Parent = TitleBar
 Instance.new("UICorner", StatusDot).CornerRadius = UDim.new(1, 0)
 
--- КНОПКИ
-local buttons = {
-    {text = "🔃", pos = -80, action = UnloadScript},
-    {text = "❌", pos = -45, action = function() Main.Visible = false end}
-}
+-- КНОПКА ВЫГРУЗКИ 🔃
+local UnloadBtn = Instance.new("TextButton")
+UnloadBtn.Size = UDim2.new(0, 30, 0, 30)
+UnloadBtn.Position = UDim2.new(1, -80, 0, 6)
+UnloadBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 35)
+UnloadBtn.BackgroundTransparency = 0.5
+UnloadBtn.Text = "🔃"
+UnloadBtn.TextColor3 = Color3.fromRGB(180, 180, 180)
+UnloadBtn.TextSize = 18
+UnloadBtn.Font = Enum.Font.SourceSansBold
+UnloadBtn.BorderSizePixel = 1
+UnloadBtn.BorderColor3 = Color3.fromRGB(60, 60, 65)
+UnloadBtn.Parent = TitleBar
+Instance.new("UICorner", UnloadBtn).CornerRadius = UDim.new(0, 6)
+UnloadBtn.MouseEnter:Connect(function()
+    UnloadBtn.BackgroundTransparency = 0.2
+    UnloadBtn.BorderColor3 = Color3.fromRGB(150, 120, 200)
+end)
+UnloadBtn.MouseLeave:Connect(function()
+    UnloadBtn.BackgroundTransparency = 0.5
+    UnloadBtn.BorderColor3 = Color3.fromRGB(60, 60, 65)
+end)
+UnloadBtn.MouseButton1Click:Connect(UnloadScript)
 
-for _, btnData in ipairs(buttons) do
-    local btn = Instance.new("TextButton")
-    btn.Size = UDim2.new(0, 30, 0, 30)
-    btn.Position = UDim2.new(1, btnData.pos, 0, 6)
-    btn.BackgroundColor3 = Color3.fromRGB(30, 30, 35)
-    btn.BackgroundTransparency = 0.5
-    btn.Text = btnData.text
-    btn.TextColor3 = Color3.fromRGB(180, 180, 180)
-    btn.TextSize = 18
-    btn.Font = Enum.Font.SourceSansBold
-    btn.BorderSizePixel = 1
-    btn.BorderColor3 = Color3.fromRGB(60, 60, 65)
-    btn.Parent = TitleBar
-    Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 6)
-    btn.MouseEnter:Connect(function()
-        btn.BackgroundTransparency = 0.2
-        btn.BorderColor3 = Color3.fromRGB(150, 120, 200)
-    end)
-    btn.MouseLeave:Connect(function()
-        btn.BackgroundTransparency = 0.5
-        btn.BorderColor3 = Color3.fromRGB(60, 60, 65)
-    end)
-    btn.MouseButton1Click:Connect(btnData.action)
-end
+-- КНОПКА ЗАКРЫТИЯ ❌
+local CloseBtn = Instance.new("TextButton")
+CloseBtn.Size = UDim2.new(0, 30, 0, 30)
+CloseBtn.Position = UDim2.new(1, -45, 0, 6)
+CloseBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 35)
+CloseBtn.BackgroundTransparency = 0.5
+CloseBtn.Text = "❌"
+CloseBtn.TextColor3 = Color3.fromRGB(180, 180, 180)
+CloseBtn.TextSize = 18
+CloseBtn.Font = Enum.Font.SourceSansBold
+CloseBtn.BorderSizePixel = 1
+CloseBtn.BorderColor3 = Color3.fromRGB(60, 60, 65)
+CloseBtn.Parent = TitleBar
+Instance.new("UICorner", CloseBtn).CornerRadius = UDim.new(0, 6)
+CloseBtn.MouseEnter:Connect(function()
+    CloseBtn.BackgroundTransparency = 0.2
+    CloseBtn.BorderColor3 = Color3.fromRGB(150, 120, 200)
+end)
+CloseBtn.MouseLeave:Connect(function()
+    CloseBtn.BackgroundTransparency = 0.5
+    CloseBtn.BorderColor3 = Color3.fromRGB(60, 60, 65)
+end)
+CloseBtn.MouseButton1Click:Connect(function() Main.Visible = false end)
 
 -- ═══════════════════════════════════════════════════════════════
 -- ЛОГ (С ПРАВИЛЬНЫМ ПЕРЕНОСОМ)
@@ -184,10 +210,10 @@ UIList.Padding = UDim.new(0, 6)
 UIList.Parent = ChatScroll
 
 -- ═══════════════════════════════════════════════════════════════
--- ПОЛЕ ВВОДА (6 СТРОК!) — УВЕЛИЧЕННАЯ ВЫСОТА
+-- ПОЛЕ ВВОДА (6 СТРОК)
 -- ═══════════════════════════════════════════════════════════════
 local InputContainer = Instance.new("Frame")
-InputContainer.Size = UDim2.new(1, -16, 0, 100)  -- 100px ≈ 6 строк
+InputContainer.Size = UDim2.new(1, -16, 0, 100)
 InputContainer.Position = UDim2.new(0, 8, 1, -108)
 InputContainer.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
 InputContainer.BackgroundTransparency = 0.4
@@ -237,7 +263,7 @@ SendBtn.MouseLeave:Connect(function()
 end)
 
 -- ═══════════════════════════════════════════════════════════════
--- ФУНКЦИЯ РАСЧЁТА ВЫСОТЫ (ДЛЯ БОЛЬШИХ СООБЩЕНИЙ)
+-- ФУНКЦИЯ РАСЧЁТА ВЫСОТЫ (ДЛЯ ГИГАНТСКИХ СООБЩЕНИЙ)
 -- ═══════════════════════════════════════════════════════════════
 local function calculateHeight(text, maxWidth)
     local fontSize = 13
@@ -248,7 +274,7 @@ local function calculateHeight(text, maxWidth)
 end
 
 -- ═══════════════════════════════════════════════════════════════
--- ДОБАВЛЕНИЕ СООБЩЕНИЯ (С ПРАВИЛЬНЫМ ПЕРЕНОСОМ)
+-- ДОБАВЛЕНИЕ СООБЩЕНИЯ (РАЗРЫВАЕТ ДЛИННЫЕ СТРОКИ)
 -- ═══════════════════════════════════════════════════════════════
 local function AddMsg(name, text, color)
     local maxNameLength = 12
@@ -257,7 +283,15 @@ local function AddMsg(name, text, color)
         displayName = string.sub(displayName, 1, maxNameLength) .. "."
     end
 
-    local fullText = displayName .. ": " .. text
+    -- ПРИНУДИТЕЛЬНО РАЗБИВАЕМ ОЧЕНЬ ДЛИННЫЕ СТРОКИ
+    local maxLineLength = 50
+    local wrappedText = ""
+    for i = 1, #text, maxLineLength do
+        wrappedText = wrappedText .. string.sub(text, i, i + maxLineLength - 1) .. "\n"
+    end
+    if wrappedText == "" then wrappedText = text end
+
+    local fullText = displayName .. ": " .. wrappedText
 
     local containerWidth = ChatScroll.AbsoluteSize.X - 20
     if containerWidth <= 0 then containerWidth = 450 end
@@ -371,8 +405,9 @@ AddMsg("🕷️ СИСТЕМА", "Тёмный чат активирован", C
 AddMsg("🕷️ СИСТЕМА", "Нажми 💬 в левом верхнем углу", Color3.fromRGB(150, 120, 200))
 
 print("═══════════════════════════════════════════════════════════")
-print("🕷️ ТЁМНЫЙ ЧАТ ЗАГРУЖЕН (v9.0)")
-print("📌 Кнопка 💬 в левом верхнем углу")
+print("🕷️ ТЁМНЫЙ ЧАТ ЗАГРУЖЕН (v9.1)")
+print("📌 Кнопка 💬 в стиле Roblox (левый верхний угол)")
+print("📌 Кнопки: 🔃 (выгрузка) ❌ (закрыть)")
 print("📌 Поле ввода — 6 строк")
-print("📌 Большие сообщения ОТОБРАЖАЮТСЯ")
+print("📌 Огромные сообщения РАЗРЫВАЮТСЯ на строки")
 print("═══════════════════════════════════════════════════════════")
