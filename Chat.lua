@@ -1,7 +1,7 @@
 -- ============================================================
 -- 🕷️ AIRI DARK CHAT ULTIMATE
 -- Тёмный подземный чат для избранных
--- Версия: 7.9 (Фикс больших сообщений)
+-- Версия: 8.1 (Фикс для мобильных)
 -- ============================================================
 
 local Players = game:GetService("Players")
@@ -45,19 +45,19 @@ local function UnloadScript()
 end
 
 -- ═══════════════════════════════════════════════════════════════
--- КНОПКА-ТРИГГЕР 💬
+-- КНОПКА-ТРИГГЕР 💬 (УВЕЛИЧЕННАЯ ДЛЯ МОБИЛЬНЫХ)
 -- ═══════════════════════════════════════════════════════════════
 local ToggleBtn = Instance.new("TextButton")
-ToggleBtn.Size = UDim2.new(0, 55, 0, 55)
-ToggleBtn.Position = UDim2.new(1, -70, 1, -75)
+ToggleBtn.Size = UDim2.new(0, 80, 0, 80)
+ToggleBtn.Position = UDim2.new(1, -90, 1, -100)
 ToggleBtn.BackgroundColor3 = Color3.fromRGB(15, 15, 20)
 ToggleBtn.BackgroundTransparency = 0.1
 ToggleBtn.Text = "💬"
 ToggleBtn.TextColor3 = Color3.fromRGB(200, 200, 200)
-ToggleBtn.TextSize = 26
+ToggleBtn.TextSize = 34
 ToggleBtn.Font = Enum.Font.SourceSansBold
-ToggleBtn.BorderSizePixel = 1
-ToggleBtn.BorderColor3 = Color3.fromRGB(60, 60, 70)
+ToggleBtn.BorderSizePixel = 2
+ToggleBtn.BorderColor3 = Color3.fromRGB(80, 80, 90)
 ToggleBtn.Parent = ScreenGui
 ToggleBtn.ZIndex = 999
 Instance.new("UICorner", ToggleBtn).CornerRadius = UDim.new(1, 0)
@@ -69,8 +69,14 @@ ToggleBtn.MouseEnter:Connect(function()
 end)
 ToggleBtn.MouseLeave:Connect(function()
     ToggleBtn.BackgroundTransparency = 0.1
-    ToggleBtn.BorderColor3 = Color3.fromRGB(60, 60, 70)
+    ToggleBtn.BorderColor3 = Color3.fromRGB(80, 80, 90)
     ToggleBtn.TextColor3 = Color3.fromRGB(200, 200, 200)
+end)
+
+ToggleBtn.TouchTap:Connect(function()
+    ToggleBtn.BackgroundTransparency = 0.6
+    task.wait(0.1)
+    ToggleBtn.BackgroundTransparency = 0.1
 end)
 
 -- ═══════════════════════════════════════════════════════════════
@@ -244,17 +250,15 @@ ToggleBtn.MouseButton1Click:Connect(function()
     isOpen = not isOpen
     Main.Visible = isOpen
     if isOpen then
-        wait(0.1)
+        task.wait(0.1)
         InputBox:CaptureFocus()
     end
 end)
 
 -- ═══════════════════════════════════════════════════════════════
--- ФУНКЦИЯ РАСЧЁТА ВЫСОТЫ ПО ТЕКСТУ
+-- ФУНКЦИЯ РАСЧЁТА ВЫСОТЫ
 -- ═══════════════════════════════════════════════════════════════
 local function calculateHeight(text, maxWidth, fontSize)
-    -- Упрощённый расчёт: считаем количество символов в строке
-    -- В Roblox средняя ширина символа ~7px при размере 13
     local charsPerLine = math.floor(maxWidth / 7.5)
     local lines = math.ceil(#text / charsPerLine)
     if lines < 1 then lines = 1 end
@@ -262,26 +266,23 @@ local function calculateHeight(text, maxWidth, fontSize)
 end
 
 -- ═══════════════════════════════════════════════════════════════
--- ДОБАВЛЕНИЕ СООБЩЕНИЯ (БЕЗ TextBounds)
+-- ДОБАВЛЕНИЕ СООБЩЕНИЯ
 -- ═══════════════════════════════════════════════════════════════
 local function AddMsg(name, text, color)
-    -- ОБРЕЗАЕМ ИМЯ ДЛЯ РОВНОГО ОТОБРАЖЕНИЯ
     local maxNameLength = 12
     local displayName = name
     if #displayName > maxNameLength then
         displayName = string.sub(displayName, 1, maxNameLength) .. "."
     end
-    
+
     local fullText = displayName .. ": " .. text
-    
-    -- РАССЧИТЫВАЕМ ВЫСОТУ
+
     local containerWidth = ChatScroll.AbsoluteSize.X - 20
     if containerWidth <= 0 then containerWidth = 450 end
-    
+
     local fontSize = 13
     local calculatedHeight = calculateHeight(fullText, containerWidth, fontSize)
-    
-    -- СОЗДАЁМ ЛЕЙБЛ
+
     local label = Instance.new("TextLabel")
     label.Size = UDim2.new(1, -10, 0, calculatedHeight)
     label.BackgroundTransparency = 1
@@ -371,10 +372,8 @@ AddMsg("🕷️ СИСТЕМА", "Тёмный чат активирован", C
 AddMsg("🕷️ СИСТЕМА", "Нажми 💬 в правом нижнем углу", Color3.fromRGB(150, 120, 200))
 
 print("═══════════════════════════════════════════════════════════")
-print("🕷️ ТЁМНЫЙ ЧАТ ЗАГРУЖЕН")
-print("📌 Кнопка 💬 в правом нижнем углу")
+print("🕷️ ТЁМНЫЙ ЧАТ ЗАГРУЖЕН (v8.1 — мобильный фикс)")
+print("📌 Кнопка 💬 увеличена до 80×80 и поднята выше")
 print("📌 Кнопки: 🔃 (выгрузка) ❌ (закрыть)")
 print("📌 Отправка: 📩 или Enter")
-print("📌 Поле ввода — до 6 строк")
-print("📌 Большие сообщения РАБОТАЮТ (через расчёт символов)")
 print("═══════════════════════════════════════════════════════════")
