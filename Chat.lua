@@ -1,12 +1,13 @@
 -- ============================================================
 -- 🕷️ AIRI DARK CHAT ULTIMATE
 -- Тёмный подземный чат для избранных
--- Версия: 8.2 (СТАБИЛЬНАЯ)
+-- Версия: 8.3 (Черная перетаскиваемая кнопка)
 -- ============================================================
 
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local UserInputService = game:GetService("UserInputService")
 
 -- ═══════════════════════════════════════════════════════════════
 -- GUI ПАПКА
@@ -38,6 +39,9 @@ ScreenGui.ResetOnSpawn = false
 -- ═══════════════════════════════════════════════════════════════
 local ChatConnection = nil
 local isOpen = false
+local isDragging = false
+local dragStart = nil
+local startPos = nil
 
 local function UnloadScript()
     if ChatConnection then pcall(function() ChatConnection:Disconnect() end) end
@@ -46,13 +50,13 @@ local function UnloadScript()
 end
 
 -- ═══════════════════════════════════════════════════════════════
--- КНОПКА-ТРИГГЕР 💬 (УВЕЛИЧЕННАЯ)
+-- КНОПКА-ТРИГГЕР 💬 (ЧЕРНАЯ, ПЕРЕТАСКИВАЕМАЯ)
 -- ═══════════════════════════════════════════════════════════════
 local ToggleBtn = Instance.new("TextButton")
 ToggleBtn.Size = UDim2.new(0, 80, 0, 80)
 ToggleBtn.Position = UDim2.new(1, -90, 1, -100)
-ToggleBtn.BackgroundColor3 = Color3.fromRGB(15, 15, 20)
-ToggleBtn.BackgroundTransparency = 0.1
+ToggleBtn.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+ToggleBtn.BackgroundTransparency = 0
 ToggleBtn.Text = "💬"
 ToggleBtn.TextColor3 = Color3.fromRGB(200, 200, 200)
 ToggleBtn.TextSize = 34
@@ -63,15 +67,77 @@ ToggleBtn.Parent = ScreenGui
 ToggleBtn.ZIndex = 999
 Instance.new("UICorner", ToggleBtn).CornerRadius = UDim.new(1, 0)
 
-ToggleBtn.MouseEnter:Connect(function()
-    ToggleBtn.BackgroundTransparency = 0.4
-    ToggleBtn.BorderColor3 = Color3.fromRGB(150, 120, 200)
-    ToggleBtn.TextColor3 = Color3.fromRGB(220, 200, 255)
+-- ═══════════════════════════════════════════════════════════════
+-- ПЕРЕТАСКИВАНИЕ КНОПКИ
+-- ═══════════════════════════════════════════════════════════════
+local function startDrag(input)
+    isDragging = true
+    dragStart = input.Position
+    startPos = ToggleBtn.Position
+    ToggleBtn.BackgroundTransparency = 0.3
+end
+
+local function updateDrag(input)
+    if not isDragging or not dragStart then return end
+    
+    local delta = input.Position - dragStart
+    local newX = startPos.X.Offset + delta.X
+    local newY = startPos.Y.Offset + delta.Y
+    
+    local screenSize = game:GetService("CoreGui").AbsoluteSize
+    local btnSize = 80
+    newX = math.max(0, math.min(newX, screenSize.X - btnSize))
+    newY = math.max(0, math.min(newY, screenSize.Y - btnSize))
+    
+    ToggleBtn.Position = UDim2.new(0, newX, 0, newY)
+end
+
+local function stopDrag()
+    isDragging = false
+    dragStart = nil
+    startPos = nil
+    ToggleBtn.BackgroundTransparency = 0
+end
+
+-- МЫШЬ
+ToggleBtn.MouseButton1Down:Connect(function(input)
+    startDrag(input)
 end)
-ToggleBtn.MouseLeave:Connect(function()
-    ToggleBtn.BackgroundTransparency = 0.1
-    ToggleBtn.BorderColor3 = Color3.fromRGB(80, 80, 90)
-    ToggleBtn.TextColor3 = Color3.fromRGB(200, 200, 200)
+
+UserInputService.InputChanged:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseMovement then
+        updateDrag(input)
+    end
+end)
+
+UserInputService.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        stopDrag()
+    end
+end)
+
+-- ТАЧ (ТЕЛЕФОН)
+ToggleBtn.TouchTap:Connect(function()
+    if not isDragging then
+        isOpen = not isOpen
+        Main.Visible = isOpen
+        if isOpen then
+            wait(0.1)
+            pcall(function() InputBox:CaptureFocus() end)
+        end
+    end
+end)
+
+ToggleBtn.TouchLongPress:Connect(function(input)
+    startDrag(input)
+end)
+
+UserInputService.TouchMoved:Connect(function(input)
+    updateDrag(input)
+end)
+
+UserInputService.TouchEnded:Connect(function()
+    stopDrag()
 end)
 
 -- ═══════════════════════════════════════════════════════════════
@@ -239,18 +305,6 @@ SendBtn.MouseLeave:Connect(function()
 end)
 
 -- ═══════════════════════════════════════════════════════════════
--- ОТКРЫТИЕ/ЗАКРЫТИЕ
--- ═══════════════════════════════════════════════════════════════
-ToggleBtn.MouseButton1Click:Connect(function()
-    isOpen = not isOpen
-    Main.Visible = isOpen
-    if isOpen then
-        wait(0.1)
-        pcall(function() InputBox:CaptureFocus() end)
-    end
-end)
-
--- ═══════════════════════════════════════════════════════════════
 -- ФУНКЦИЯ РАСЧЁТА ВЫСОТЫ
 -- ═══════════════════════════════════════════════════════════════
 local function calculateHeight(text, maxWidth)
@@ -364,8 +418,8 @@ AddMsg("🕷️ СИСТЕМА", "Тёмный чат активирован", C
 AddMsg("🕷️ СИСТЕМА", "Нажми 💬 в правом нижнем углу", Color3.fromRGB(150, 120, 200))
 
 print("═══════════════════════════════════════════════════════════")
-print("🕷️ ТЁМНЫЙ ЧАТ ЗАГРУЖЕН (v8.2)")
-print("📌 Кнопка 💬 увеличена до 80×80")
+print("🕷️ ТЁМНЫЙ ЧАТ ЗАГРУЖЕН (v8.3)")
+print("📌 Кнопка 💬 чёрная и перетаскиваемая")
 print("📌 Кнопки: 🔃 (выгрузка) ❌ (закрыть)")
 print("📌 Отправка: 📩 или Enter")
 print("═══════════════════════════════════════════════════════════")
